@@ -43,12 +43,13 @@ static inline uint32_t u8t32le(uint8_t p[4]) {
 * \20 Round for Algorithm.
 * \64-byte(512-bit) for Block position
 */
-ChaCha20::ChaCha20(uint8_t numRounds):round(numRounds),position(64) 
+ChaCha20::ChaCha20(uint8_t numRounds):round(numRounds) 
 {
     memset(block, 0, 64);
     memset(stream, 0, 64); //uit32_t will be change uint8_t
                            //16 elements should be 64
                            //numRounds:20
+
 }
 ChaCha20::~ChaCha20()
 
@@ -66,6 +67,7 @@ size_t ChaCha20::IVSize() const
     // Default IV size is 96-bit(12-byte)
     return 12;
 }
+
 bool ChaCha20::setKey(const Ktools* tools)
 {
     static const uint8_t cons_str[] = "expand 32-byte k";
@@ -73,7 +75,6 @@ bool ChaCha20::setKey(const Ktools* tools)
     {
         memcpy(this->block, cons_str, 16);
         memcpy(this->block + 16, tools->key, tools->keySize);
-        this->position = 64;
         return true;
     }
     else
@@ -87,7 +88,6 @@ bool ChaCha20::setIV(const Ktools* tools)
     {
         memset(this->block+48, 0, 4);
         memcpy(this->block + 52, tools->iv, tools->ivSize);
-        this->position = 64;
         return true;
     }
     else
@@ -95,6 +95,11 @@ bool ChaCha20::setIV(const Ktools* tools)
         return false;
     }
 }
+/**
+*This function must be called after setIV() and before the first call
+* to encrypt().It is used to specify a different starting value than
+* zero for the counter portion of the hash input.
+*/
 bool ChaCha20::setCounter(const Ktools* tool)
 {
     uint8_t counter[4];
@@ -102,7 +107,6 @@ bool ChaCha20::setCounter(const Ktools* tool)
     if (tool->counterSize == 4 ) 
     {
         memcpy(block + 48, counter, tool->counterSize);
-        this->position = 64;
         return true;
     }
     else {
@@ -110,13 +114,17 @@ bool ChaCha20::setCounter(const Ktools* tool)
     }
 }
 
+bool ChaCha20::initBlock(const Ktools* tool)
+{
+    return setKey(tool) && setIV(tool) && setCounter(tool);
+}
 void ChaCha20::encrypt(uint8_t* output, const uint8_t* input, uint8_t len)
 {
-    uint8_t templen = len;
+    //uint8_t templen = len;
     for (uint8_t i = 0; i < len; i += 64)
     {
         hashCore(stream, block);
-        position = 0;
+      
         uint16_t temp = 1;
         uint8_t index = 48;
         while (index < 56) {
@@ -125,9 +133,11 @@ void ChaCha20::encrypt(uint8_t* output, const uint8_t* input, uint8_t len)
             temp >>= 8;
             ++index;
         }
-        while (templen > 0) {
-            *output++ = *input++ ^ stream[position++];
-            --templen;
+        for (uint8_t posn = i; posn < i + 64; posn++) {
+            if (posn >= len) {
+                break;
+            }
+            output[posn] = input[posn] ^ stream[posn - i];
         }
     }
 

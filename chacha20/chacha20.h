@@ -53,10 +53,11 @@ public:
 	size_t IVSize() const;
 
 	uint8_t numRounds() const { return round; }
-
+	
 	bool setKey(const Ktools* tool);
 	bool setIV(const Ktools* tool);
 	bool setCounter(const Ktools* tool);
+	bool initBlock(const Ktools* tool);
 	void encrypt(uint8_t* output, const uint8_t* input, uint8_t len);
 	void hashCore(uint32_t* output, const uint8_t* input);
 
@@ -64,7 +65,6 @@ private:
 	uint8_t block[64]; //516-bit
 	uint32_t stream[16]; //516-bit ; //Keys stream:(Key(256-bit)+IV(96-bit)+Counter(32-bit))& Algorithm 
 	uint8_t round;
-	uint8_t position;
 	Ktools tool;
 
 };
