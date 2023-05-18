@@ -18,6 +18,9 @@
     <ClCompile Include="chacha20.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="Test_encryption.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chacha20.h">

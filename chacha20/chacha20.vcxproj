@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="chacha20.cpp" />
+    <ClCompile Include="Test_encryption.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chacha20.h" />

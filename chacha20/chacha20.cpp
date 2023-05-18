@@ -1,8 +1,4 @@
-﻿// chacha20.cpp : 此檔案包含 'main' 函式。程式會於該處開始執行及結束執行。
-//
-
-#include <iostream>
-#include"chacha20.h"
+﻿#include"chacha20.h"
 
 // Generic left rotate.
 #define leftRotate(a, bits) ((a << (bits)) | (a >> (32 - (bits))))
@@ -14,14 +10,6 @@
 	a += b,  d ^= a,  d = leftRotate(d, 8),	\
 	c += d,  b ^= c,  b = leftRotate(b, 7))
 
-void clean(void* dest, size_t size)
-{
-    volatile uint8_t* d = (volatile uint8_t*)dest;
-    while (size > 0) {
-        *d++ = 0;
-        --size;
-    }
-}
 static inline void u32t8le(uint32_t v, uint8_t p[4]) {
     p[0] = v & 0xff;
     p[1] = (v >> 8) & 0xff;
@@ -52,10 +40,9 @@ ChaCha20::ChaCha20(uint8_t numRounds):round(numRounds)
 
 }
 ChaCha20::~ChaCha20()
-
 {
-    clean(block);
-    clean(stream);
+    memset(block, 0, 64);
+    memset(stream, 0, 64);
 }
 size_t ChaCha20::KeySize() const
 {
@@ -73,8 +60,8 @@ bool ChaCha20::setKey(const Ktools* tools)
     static const uint8_t cons_str[] = "expand 32-byte k";
     if (tools->keySize==32)
     {
-        memcpy(this->block, cons_str, 16);
-        memcpy(this->block + 16, tools->key, tools->keySize);
+        memcpy(block, cons_str, 16);
+        memcpy(block + 16, tools->key, tools->keySize);
         return true;
     }
     else
@@ -86,8 +73,8 @@ bool ChaCha20::setIV(const Ktools* tools)
 {
     if (tools->ivSize == 12)
     {
-        memset(this->block+48, 0, 4);
-        memcpy(this->block + 52, tools->iv, tools->ivSize);
+        memset(block+48, 0, 4);
+        memcpy(block + 52, tools->iv, tools->ivSize);
         return true;
     }
     else
@@ -114,46 +101,50 @@ bool ChaCha20::setCounter(const Ktools* tool)
     }
 }
 
-bool ChaCha20::initBlock(const Ktools* tool)
+bool ChaCha20::initBlock()
 {
-    return setKey(tool) && setIV(tool) && setCounter(tool);
+    return setKey(&(tool)) && setIV(&(tool)) && setCounter(&(tool));
 }
 void ChaCha20::encrypt(uint8_t* output, const uint8_t* input, uint8_t len)
 {
+    initBlock();
     //uint8_t templen = len;
     for (uint8_t i = 0; i < len; i += 64)
     {
         hashCore(stream, block);
-      
+        uint8_t stream8[64];
+        memcpy(stream8, stream, 64);
         uint16_t temp = 1;
         uint8_t index = 48;
         while (index < 56) {
-            temp += this->block[index];
-            this->block[index] = (uint8_t)temp;
+            temp += block[index];
+            block[index] = (uint8_t)temp;
             temp >>= 8;
             ++index;
         }
-        for (uint8_t posn = i; posn < i + 64; posn++) {
-            if (posn >= len) {
+        for (uint8_t posn = i; posn < i + 64; posn++) 
+        {
+            if (posn >= len) 
+            {
                 break;
             }
-            output[posn] = input[posn] ^ stream[posn - i];
+            output[posn] = input[posn] ^ stream8[posn - i];
         }
     }
 
 }
 
-void ChaCha20::hashCore(uint32_t* output, const uint8_t* input)
+void ChaCha20::hashCore(uint32_t* output, uint8_t* input)
 {
     uint8_t posn;
-
+    uint32_t input32[16];
     // Copy the input buffer to the output prior to the first round
     // and convert from little-endian to host byte order.
     memcpy(output, input, sizeof(uint32_t) * 16);
-
+    memcpy(input32, input, sizeof(uint32_t) * 16);
     // Perform the ChaCha rounds in sets of two.
-    for (; round >= 2; round -= 2) {
-        
+    for (uint8_t numround= numRounds(); numround >= 2; numround -= 2) {
+
         // Column round.
         quarterRound(output[0], output[4], output[8], output[12]);
         quarterRound(output[1], output[5], output[9], output[13]);
@@ -170,5 +161,12 @@ void ChaCha20::hashCore(uint32_t* output, const uint8_t* input)
     // Add the original input to the final output, convert back to
     // little-endian, and return the result.
     for (posn = 0; posn < 16; ++posn)
-        output[posn] = (output[posn] + input[posn]);
+    {
+        output[posn] = (output[posn] + input32[posn]);
+    }
+}
+
+void ChaCha20::decrypt(uint8_t* output, const uint8_t* input, uint8_t len)
+{
+    encrypt(output, input, len);
 }
