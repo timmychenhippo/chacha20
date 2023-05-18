@@ -119,8 +119,10 @@ bool ChaCha20::initBlock()
 }
 void ChaCha20::encrypt(uint8_t* output, const uint8_t* input, uint8_t len)
 {
-    initBlock();
-    //uint8_t templen = len;
+    if (!initBlock())
+    {
+        return;
+    }
     for (uint8_t i = 0; i < len; i += 64)
     {
         hashCore(stream, block);
