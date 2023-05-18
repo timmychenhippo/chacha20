@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CRYPTO_CHACHA_H
 #define CRYPTO_CHACHA_H
 #endif
