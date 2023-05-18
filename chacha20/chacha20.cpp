@@ -10,6 +10,18 @@
 	a += b,  d ^= a,  d = leftRotate(d, 8),	\
 	c += d,  b ^= c,  b = leftRotate(b, 7))
 
+void clean(void* dest, size_t size)
+{
+    // Force the use of volatile so that we actually clear the memory.
+    // Otherwise the compiler might optimise the entire contents of this
+    // function away, which will not be secure.
+    volatile uint8_t* d = (volatile uint8_t*)dest;
+    while (size > 0) {
+        *d++ = 0;
+        --size;
+    }
+}
+
 static inline void u32t8le(uint32_t v, uint8_t p[4]) {
     p[0] = v & 0xff;
     p[1] = (v >> 8) & 0xff;
@@ -41,8 +53,8 @@ ChaCha20::ChaCha20(uint8_t numRounds):round(numRounds)
 }
 ChaCha20::~ChaCha20()
 {
-    memset(block, 0, 64);
-    memset(stream, 0, 64);
+    clean(block,64);
+    clean(stream, sizeof(uint32_t)*16);
 }
 size_t ChaCha20::KeySize() const
 {
