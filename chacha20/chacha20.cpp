@@ -10,7 +10,7 @@
 	a += b,  d ^= a,  d = leftRotate(d, 8),	\
 	c += d,  b ^= c,  b = leftRotate(b, 7))
 
-void clean(void* dest, size_t size)
+static inline void clean(void* dest, size_t size)
 {
     // Force the use of volatile so that we actually clear the memory.
     // Otherwise the compiler might optimise the entire contents of this

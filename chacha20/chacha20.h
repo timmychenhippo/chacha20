@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 
+static inline void clean(void* dest, size_t size);
 static inline void u32t8le(uint32_t v, uint8_t p[4]);
 static inline uint32_t u8t32le(uint8_t p[4]);
 
