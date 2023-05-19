@@ -130,7 +130,8 @@ void ChaCha20::encrypt(uint8_t* output, const uint8_t* input, uint8_t len)
         memcpy(stream8, stream, 64);
         uint16_t temp = 1;
         uint8_t index = 48;
-        while (index < 56) {
+        while (index < 52)               //couter 4-byte at block(48~52)
+        { 
             temp += block[index];
             block[index] = (uint8_t)temp;
             temp >>= 8;

@@ -30,8 +30,8 @@ public:
 		const size_t keySize = 32;
 		const uint8_t iv[12] = { 0x01, 0x40, 0x00, 0x00, 0x80, 0x00, 0x70, 0x4a, 0x00, 0x60, 0x00, 0x50 };
 		const size_t ivSize = 12;
-		const uint32_t counter = 0; //defualt value 0 or 1
-		const size_t counterSize = 4;
+		const uint32_t counter = 0;		//defualt value 0 or 1
+		const size_t counterSize = 4;	//32-bit
 		const size_t Size = 64;
 
 	}Ktools;
