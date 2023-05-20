@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <bitset>
 #include "chacha20.h"
+#include <chrono>
 
 #define MAVLINK_MSG_ID_TEST1 28
 #define MAVLINK_MSG_ID_TEST2 137
@@ -81,8 +82,16 @@ int main()
 	uint8_t encrypt[MAVLINK_MSG_ID_TEST2];
 	uint8_t decrypt[MAVLINK_MSG_ID_TEST2];
 	//chacha.initBlock();
+
+	auto start = std::chrono::high_resolution_clock::now();
+
 	chacha.encrypt(encrypt, (uint8_t*)packet, MAVLINK_MSG_ID_TEST2);
 	chacha2.decrypt(decrypt, encrypt, MAVLINK_MSG_ID_TEST2);
+
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> duration = end - start;
+	double seconds = duration.count();
+
 
 	for (int i = 0; i < MAVLINK_MSG_ID_TEST2; i++)
 	{
@@ -118,4 +127,7 @@ int main()
 	std::cout << "test4:" << test4.distance[4] << std::endl;
 	std::cout << "test5:" << test4.distance[15] << std::endl;
 	std::cout << "cout:" << test4.count << std::endl;
+
+	std::cout << "程式執行時間: " << seconds << " 秒" << std::endl;
+	std::cout << "程式執行時間: " << std::fixed<<seconds << " 秒" << std::endl;
 }
