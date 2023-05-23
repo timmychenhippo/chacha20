@@ -117,13 +117,13 @@ bool ChaCha20::initBlock()
 {
     return setKey(&(tool)) && setIV(&(tool)) && setCounter(&(tool));
 }
-void ChaCha20::encrypt(uint8_t* output, const uint8_t* input, uint8_t len)
+void ChaCha20::encrypt(uint8_t* output, const uint8_t* input, uint32_t len)
 {
     if (!initBlock())
     {
         return;
     }
-    for (uint8_t i = 0; i < len; i += 64)
+    for (uint32_t i = 0; i < len; i += 64)
     {
         hashCore(stream, block);
         uint8_t stream8[64];
@@ -181,7 +181,7 @@ void ChaCha20::hashCore(uint32_t* output, uint8_t* input)
     }
 }
 
-void ChaCha20::decrypt(uint8_t* output, const uint8_t* input, uint8_t len)
+void ChaCha20::decrypt(uint8_t* output, const uint8_t* input, uint32_t len)
 {
     encrypt(output, input, len);
 }
