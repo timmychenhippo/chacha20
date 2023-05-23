@@ -130,4 +130,4 @@ int main()
 
 	std::cout << "程式執行時間: " << seconds << " 秒" << std::endl;
 	std::cout << "程式執行時間: " << std::fixed<<seconds << " 秒" << std::endl;
-}
+}  
