@@ -86,7 +86,7 @@ int main()
 	auto start = std::chrono::high_resolution_clock::now();
 
 	chacha.encrypt(encrypt, (uint8_t*)packet, MAVLINK_MSG_ID_TEST2);
-	chacha2.decrypt(decrypt, encrypt, MAVLINK_MSG_ID_TEST2);
+	chacha.decrypt(decrypt, encrypt, MAVLINK_MSG_ID_TEST2);
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
