@@ -99,13 +99,13 @@ bool ChaCha20::setIV(const Ktools* tools)
 * to encrypt().It is used to specify a different starting value than
 * zero for the counter portion of the hash input.
 */
-bool ChaCha20::setCounter(const Ktools* tool)
+bool ChaCha20::setCounter(const Ktools* tools)
 {
     uint8_t counter[4];
-    u32t8le(tool->counter, counter);
-    if (tool->counterSize == 4 ) 
+    u32t8le(tools->counter, counter);
+    if (tools->counterSize == 4 ) 
     {
-        memcpy(block + 48, counter, tool->counterSize);
+        memcpy(block + 48, counter, tools->counterSize);
         return true;
     }
     else {
